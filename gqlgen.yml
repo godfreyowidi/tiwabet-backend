@@ -1,0 +1,30 @@
+# gqlgen.yml
+schema:
+  - gql-gateway/schema/*.graphqls
+
+exec:
+  filename: gql-gateway/graph/generated.go
+  package: graph
+
+model:
+  filename: gql-gateway/model/dto_graphql_gen.go
+  package: model
+
+resolver:
+  layout: follow-schema
+  dir: gql-gateway/resolvers
+  package: resolvers
+  filename_template: "{name}.resolvers.go"
+
+autobind:
+  - github.com/godfreyowidi/tiwabet-backend/gql-gateway/model/dao
+
+models:
+  ID:
+    model:
+      - github.com/99designs/gqlgen/graphql.IntID
+  User:
+    model: github.com/godfreyowidi/tiwabet-backend/gql-gateway/model/dao.User
+    fields:
+      user:
+        resolver: true

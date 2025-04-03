@@ -1,0 +1,26 @@
+type Bet {
+    id: ID!
+    user: User!
+    amount: Float!
+    status: BetStatus!
+    placedAt: Time!
+    outcome: BetOutcome
+}
+
+enum BetStatus {
+    PENDING
+    WON
+    LOST
+    CANCELLED
+}
+
+enum BetOutcome {
+    WIN
+    LOSE
+    VOID
+}
+
+input NewBet {
+    userId: ID!
+    amount: Float!
+}

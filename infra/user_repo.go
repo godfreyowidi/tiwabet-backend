@@ -62,3 +62,25 @@ func (r *UserRepository) ListUsers(ctx context.Context) ([]*domain.User, error) 
 	}
 	return users, nil
 }
+
+// UpdateUser updates an existing user details
+func (r *UserRepository) UpdateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
+	query := `UPDATE users SET name = COALESCE(NULLIF($1, ''), name), email = COALESCE(NULLIF($2, ''), email), updated_at = NOW() WHERE id = $3 RETURNING id, name, email, updated_at`
+	err := r.DB.QueryRow(ctx, query, user.Name, user.Email, user.ID).Scan(&user.ID, &user.Name, &user.Email, &user.UpdatedAt)
+	if err != nil {
+		log.Printf("Error updating user: %v", err)
+		return nil, err
+	}
+	return user, nil
+}
+
+// DeleteUser deletes user by ID
+func (r *UserRepository) DeleteUser(ctx context.Context, userID string) error {
+	query := `DELETE FROM users WHERE id = $1`
+	_, err := r.DB.Exec(ctx, query, userID)
+	if err != nil {
+		log.Printf("Error deleting user: %v", err)
+		return err
+	}
+	return nil
+}

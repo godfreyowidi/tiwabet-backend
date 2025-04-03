@@ -35,6 +35,7 @@ services:
       - tiwabet-db
     ports:
       - "50051:50051"
+      - "8081:8081"
     env_file:
       - .env
     restart: always

@@ -1,3 +1,10 @@
 type Mutation {
+    # User Mutations
     createUser(input: NewUser!): User!
+    updateUser(id: ID!, input: UpdateUser!): User!
+    deleteUser(id: ID!): Boolean!
+
+    # Bet Mutations
+    placeBet(input: NewBet!): Bet!
+    cancelBet(id: ID!): Bet!
 }

@@ -39,3 +39,8 @@ docker-compose up --build
 ```
 
 6. Check for the error on the terminal and sort them out appropriately
+
+## Problems
+1. I want to reference _user.proto_ with _bet.proto_ for gRPC and have tried (several variations) to import user into bet like _import "tiwabet-backend/proto/bet.proto"_ and I cant get it to work
+
+2. You can comment out the bets table in the meantime - its buggy

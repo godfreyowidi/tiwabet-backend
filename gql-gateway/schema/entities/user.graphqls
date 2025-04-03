@@ -8,3 +8,8 @@ input NewUser {
     name: String!
     email: String!
 }
+
+input UpdateUser {
+    name: String
+    email: String
+}

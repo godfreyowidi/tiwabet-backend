@@ -1,3 +1,9 @@
 type Query {
-    users: [User!]!
+    # User Queries
+    user(id: ID!): User
+    users(first: Int, after: ID); UserConnection!
+
+    # Bet Queries
+    bet(id: ID!): Bet
+    bets(userId: ID!, first: Int, after: ID): BetConnection!
 }

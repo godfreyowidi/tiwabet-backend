@@ -2,9 +2,7 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"strconv"
 
 	"github.com/godfreyowidi/tiwabet-backend/domain"
 	"github.com/godfreyowidi/tiwabet-backend/infra"
@@ -25,22 +23,15 @@ func NewUserService(userRepo *infra.UserRepository) *UserServer {
 
 // fetch user by ID
 func (s *UserServer) GetUser(ctx context.Context, req *userpb.GetUserRequest) (*userpb.GetUserResponse, error) {
-	log.Printf("Received GetUser request for ID: %d", req.UserId)
+	log.Printf("Received GetUser request for ID: %s", req.UserId)
 
-	userIDStr := strconv.FormatInt(req.UserId, 10)
-
-	user, err := s.Repo.GetUserByID(ctx, userIDStr)
+	user, err := s.Repo.GetUserByID(ctx, req.UserId)
 	if err != nil {
 		return nil, err
 	}
 
-	userIDInt, err := strconv.ParseInt(user.ID, 10, 64)
-	if err != nil {
-		log.Printf("Error converting user ID to int64: %v", err)
-		return nil, err
-	}
 	return &userpb.GetUserResponse{
-		UserId: userIDInt,
+		UserId: user.ID,
 		Name:   user.Name,
 		Email:  user.Email,
 	}, nil
@@ -76,15 +67,46 @@ func (s *UserServer) ListUsers(ctx context.Context, req *userpb.ListUsersRequest
 
 	var userList []*userpb.User
 	for _, user := range users {
-		id, err := strconv.ParseInt(user.ID, 10, 64)
-		if err != nil {
-			return nil, fmt.Errorf("failed to convert user ID %s to int64: %v", user.ID, err)
-		}
 		userList = append(userList, &userpb.User{
-			Id:    id,
+			Id:    user.ID,
 			Name:  user.Name,
 			Email: user.Email,
 		})
 	}
 	return &userpb.ListUsersResponse{Users: userList}, nil
+}
+
+// Update user details
+func (s *UserServer) UpdateUser(ctx context.Context, req *userpb.UpdateUserRequest) (*userpb.UpdateUserResponse, error) {
+	log.Printf("Received UpdateUser request for ID: %s", req.UserId)
+
+	updatedUser, err := s.Repo.UpdateUser(ctx, &domain.User{
+		ID:    req.UserId,
+		Name:  *req.Name,
+		Email: *req.Email,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &userpb.UpdateUserResponse{
+		UserId:    updatedUser.ID,
+		Name:      updatedUser.Name,
+		Email:     updatedUser.Email,
+		UpdatedAt: updatedUser.UpdatedAt.String(),
+	}, nil
+}
+
+// Delete user
+func (s *UserServer) DeleteUser(ctx context.Context, req *userpb.DeleteUserRequest) (*userpb.DeleteUserResponse, error) {
+	log.Printf("Received DeleteUser request for ID: %s", req.UserId)
+
+	err := s.Repo.DeleteUser(ctx, req.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &userpb.DeleteUserResponse{
+		Success: true,
+	}, nil
 }

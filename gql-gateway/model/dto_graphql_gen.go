@@ -12,3 +12,8 @@ type NewUser struct {
 
 type Query struct {
 }
+
+type UpdateUser struct {
+	Name  *string `json:"name,omitempty"`
+	Email *string `json:"email,omitempty"`
+}

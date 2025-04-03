@@ -1,0 +1,27 @@
+type PageInfo {
+    startCursor: ID!
+    endCursor: ID!
+    hasNextPage: Boolean!
+}
+
+type UserConnection {
+    totalCount: Int!
+    edges: [UserEdge!]!
+    pageInfo: PageInfo!
+}
+
+type UserEdge {
+    cursor: ID!
+    node: User
+}
+
+type BetConnection {
+    totalCount: Int!
+    edges: [BetEdge!]!
+    pageInfo: PageInfo!
+}
+
+type BetEdge {
+    cursor: ID!
+    node: Bet
+}

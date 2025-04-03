@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package bet;
+
+option go_package = "tiwabet-backend/proto/betpb";
+
+import "user.proto";
+
+service BetService {
+    rpc PlaceBet (PlaceBetRequest) returns (PlaceBetResponse);
+    rpc GetBet (GetBetRequest) returns (GetBetResponse);
+    rpc ListBets (ListBetsRequest) returns (ListBetsResponse);
+    rpc CancelBet (CancelBetRequest) returns (CancelBetResponse);
+    rpc UpdateBet (UpdateBetRequest) returns (UpdateBetResponse);
+}
+
+// --- Place Bet ---
+message PlaceBetRequest {
+    string user_id = 1;  // Reference to User
+    double amount = 2;
+}
+
+message PlaceBetResponse {
+    Bet bet = 1;
+}
+
+// --- Get Bet ---
+message GetBetRequest {
+    string bet_id = 1;
+}
+
+message GetBetResponse {
+    Bet bet = 1;
+}
+
+// --- List Bets with Pagination ---
+message ListBetsRequest {
+    string user_id = 1;
+    int32 page = 2;
+    int32 page_size = 3;
+}
+
+message ListBetsResponse {
+    repeated Bet bets = 1;
+    int32 total_count = 2;
+    bool has_next_page = 3;
+}
+
+// --- Update Bet ---
+message UpdateBetRequest {
+    string bet_id = 1;
+    optional BetStatus status = 2;
+    optional BetOutcome outcome = 3;
+}
+
+message UpdateBetResponse {
+    Bet bet = 1;
+}
+
+// --- Cancel Bet ---
+message CancelBetRequest {
+    string bet_id = 1;
+}
+
+message CancelBetResponse {
+    bool success = 1;
+}
+
+// --- Bet Entity ---
+message Bet {
+    string id = 1;
+    user.User user = 2;
+    double amount = 3;
+    BetStatus status = 4;
+    string placed_at = 5;
+    optional BetOutcome outcome = 6;
+    optional string updated_at = 7;
+}
+
+// --- Enums ---
+enum BetStatus {
+    PENDING = 0;
+    WON = 1;
+    LOST = 2;
+    CANCELLED = 3;
+}
+
+enum BetOutcome {
+    WIN = 0;
+    LOSE = 1;
+    VOID = 2;
+}

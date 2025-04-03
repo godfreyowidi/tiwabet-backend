@@ -7,7 +7,6 @@ package resolvers
 import (
 	"context"
 	"log"
-	"strconv"
 
 	"github.com/godfreyowidi/tiwabet-backend/gql-gateway/graph"
 	model "github.com/godfreyowidi/tiwabet-backend/gql-gateway/model/dao"
@@ -22,7 +21,7 @@ func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 	// Ensure gRPC client conn
 	if r.GrpcClient == nil || r.GrpcConn.GetState() == connectivity.Shutdown {
 		var err error
-		r.GrpcConn, err = grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+		r.GrpcConn, err = grpc.Dial("tiwabet-backend:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			log.Printf("Failed to connect to gRPC server: %v", err)
 			return nil, err
@@ -40,12 +39,40 @@ func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 	var users []*model.User
 	for _, u := range res.Users {
 		users = append(users, &model.User{
-			ID:    strconv.FormatInt(u.Id, 10),
+			ID:    u.Id,
 			Name:  u.Name,
 			Email: u.Email,
 		})
 	}
 	return users, nil
+}
+
+// User is the resolver for the user field.
+func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
+	// Ensure gRPC client connection
+	if r.GrpcClient == nil || r.GrpcConn.GetState() == connectivity.Shutdown {
+		var err error
+		r.GrpcConn, err = grpc.Dial("tiwabet-backend:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+		if err != nil {
+			log.Printf("Failed to connect to gRPC server: %v", err)
+			return nil, err
+		}
+		r.GrpcClient = userpb.NewUserServiceClient(r.GrpcConn)
+	}
+
+	// Call GetUser gRPC method
+	res, err := r.GrpcClient.GetUser(ctx, &userpb.GetUserRequest{UserId: id})
+	if err != nil {
+		log.Printf("Error calling GetUser: %v", err)
+		return nil, err
+	}
+
+	// Map gRPC response to GraphQL model
+	return &model.User{
+		ID:    res.UserId,
+		Name:  res.Name,
+		Email: res.Email,
+	}, nil
 }
 
 // Query returns graph.QueryResolver implementation.
